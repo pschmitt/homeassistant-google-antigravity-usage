@@ -4,7 +4,7 @@ cards:
   - type: heading
     heading: Google Gemini
     heading_style: subtitle
-    icon: simple-icons:googlegemini
+    icon: mdi:google
   - type: grid
     square: false
     columns: 2

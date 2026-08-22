@@ -6,6 +6,7 @@ from datetime import UTC, datetime, timedelta
 import json
 import logging
 from typing import Any
+import aiohttp
 
 try:
     from homeassistant.util import dt as dt_util

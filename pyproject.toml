@@ -1,0 +1,7 @@
+[project]
+name = "homeassistant-gemini-usage"
+version = "0.1.0"
+description = "Home Assistant custom integration for Google Gemini Usage"
+readme = "README.md"
+authors = [{ name = "Philipp Schmitt" }]
+dependencies = []

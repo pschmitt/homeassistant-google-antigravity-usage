@@ -1,0 +1,17 @@
+{
+  "domain": "gemini_usage",
+  "name": "Google Gemini Usage",
+  "codeowners": [
+    "@pschmitt"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/pschmitt/homeassistant-gemini-usage",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/pschmitt/homeassistant-gemini-usage/issues",
+  "loggers": [
+    "custom_components.gemini_usage"
+  ],
+  "requirements": [],
+  "version": "0.1.0"
+}

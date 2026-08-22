@@ -1,0 +1,40 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Google Gemini Usage",
+        "description": "Enter your Google OAuth or Antigravity access token (or the JSON contents of ~/.gemini/antigravity-cli/antigravity-oauth-token).",
+        "data": {
+          "token": "Access Token / Token JSON"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Re-authenticate Google Gemini",
+        "description": "Enter a fresh access token for {name}.",
+        "data": {
+          "token": "Access Token / Token JSON"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to Google Cloud Code service",
+      "invalid_auth": "Invalid or expired token",
+      "missing_token": "Token is required",
+      "unknown": "Unexpected error"
+    },
+    "abort": {
+      "already_configured": "Account is already configured",
+      "reauth_successful": "Re-authentication was successful"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Google Gemini Usage Options",
+        "data": {
+          "scan_interval": "Update interval (seconds)"
+        }
+      }
+    }
+  }
+}

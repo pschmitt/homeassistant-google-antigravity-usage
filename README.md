@@ -33,4 +33,4 @@ Enter your Google OAuth access token or the JSON content from `~/.gemini/antigra
 
 ## License
 
-MIT License
+GNU General Public License v3.0 (GPL-3.0)

@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 from datetime import timedelta
+import json
 import logging
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import aiohttp_client
 
 from .api import GeminiUsageApiClient
@@ -24,7 +25,34 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Google Gemini Usage from a config entry."""
     session = aiohttp_client.async_get_clientsession(hass)
     token = entry.data[CONF_TOKEN]
-    client = GeminiUsageApiClient(session=session, token=token)
+
+    @callback
+    def _on_token_refreshed(new_access_token: str) -> None:
+        """Persist updated access token while keeping refresh token."""
+        _LOGGER.debug("Persisting refreshed access token for entry %s", entry.entry_id)
+        raw_val = entry.data.get(CONF_TOKEN, "")
+        if isinstance(raw_val, str) and raw_val.strip().startswith("{"):
+            try:
+                parsed = json.loads(raw_val)
+                if "token" in parsed and isinstance(parsed["token"], dict):
+                    parsed["token"]["access_token"] = new_access_token
+                    hass.config_entries.async_update_entry(
+                        entry,
+                        data={**entry.data, CONF_TOKEN: json.dumps(parsed)},
+                    )
+                    return
+            except Exception:  # noqa: BLE001
+                pass
+        hass.config_entries.async_update_entry(
+            entry,
+            data={**entry.data, CONF_TOKEN: new_access_token},
+        )
+
+    client = GeminiUsageApiClient(
+        session=session,
+        token=token,
+        on_token_refreshed=_on_token_refreshed,
+    )
 
     scan_interval = entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
     coordinator = GeminiUsageCoordinator(

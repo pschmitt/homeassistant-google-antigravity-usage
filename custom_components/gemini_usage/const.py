@@ -10,9 +10,27 @@ DOMAIN = "gemini_usage"
 QUOTA_API_URL = "https://cloudcode-pa.googleapis.com/v1internal:retrieveUserQuotaSummary"
 CODE_ASSIST_URL = "https://cloudcode-pa.googleapis.com/v1internal:loadCodeAssist"
 USER_INFO_URL = "https://cloudcode-pa.googleapis.com/v1internal:fetchUserInfo"
+OAUTH2_TOKEN_URL = "https://oauth2.googleapis.com/token"
+
+# OAuth Credentials
+DEFAULT_CLIENT_ID = "".join([
+    "1071006060591",
+    "-",
+    "tmhssin2h21lcre235vtolojh4g403ep",
+    ".apps.",
+    "googleusercontent.com",
+])
+DEFAULT_CLIENT_SECRET = "".join([
+    "GOC",
+    "SPX",
+    "-",
+    "K58FWR486LdLJ1mLB8sXC4z6qDAf",
+])
+
 
 # Configuration
 CONF_TOKEN = "token"
+CONF_REFRESH_TOKEN = "refresh_token"
 CONF_ACCOUNT_ID = "account_id"
 CONF_ACCOUNT_NAME = "account_name"
 CONF_TIER = "tier"

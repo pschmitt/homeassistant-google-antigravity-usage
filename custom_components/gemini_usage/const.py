@@ -7,14 +7,35 @@ from datetime import timedelta
 DOMAIN = "gemini_usage"
 
 # Endpoints
-QUOTA_API_URL = "https://cloudcode-pa.googleapis.com/v1internal:retrieveUserQuotaSummary"
-CODE_ASSIST_URL = "https://cloudcode-pa.googleapis.com/v1internal:loadCodeAssist"
-USER_INFO_URL = "https://cloudcode-pa.googleapis.com/v1internal:fetchUserInfo"
+# Antigravity uses the daily quota backend. The non-daily endpoint can return
+# a different quota snapshot for the same account.
+CLOUD_CODE_API_BASE = "https://daily-cloudcode-pa.googleapis.com/v1internal"
+QUOTA_API_URL = f"{CLOUD_CODE_API_BASE}:retrieveUserQuotaSummary"
+CODE_ASSIST_URL = f"{CLOUD_CODE_API_BASE}:loadCodeAssist"
+USER_INFO_URL = f"{CLOUD_CODE_API_BASE}:fetchUserInfo"
+GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v1/userinfo?alt=json"
+OAUTH2_TOKEN_URL = "https://oauth2.googleapis.com/token"
+OAUTH_AUTHORIZE_URL = "https://accounts.google.com/o/oauth2/v2/auth"
+OAUTH_REDIRECT_URI = "http://localhost:51121/oauth-callback"
+
+# These are the credentials currently used by the Antigravity CLI token format
+# accepted by this integration.
+OAUTH_SCOPES = (
+    "https://www.googleapis.com/auth/cloud-platform "
+    "https://www.googleapis.com/auth/userinfo.email "
+    "https://www.googleapis.com/auth/userinfo.profile "
+    "https://www.googleapis.com/auth/cclog "
+    "https://www.googleapis.com/auth/experimentsandconfigs"
+)
 
 # Configuration
+CONF_AUTH_IMPLEMENTATION = "auth_implementation"
 CONF_TOKEN = "token"
+CONF_REFRESH_TOKEN = "refresh_token"
+CONF_EXPIRES_AT = "expires_at"
 CONF_ACCOUNT_ID = "account_id"
 CONF_ACCOUNT_NAME = "account_name"
+CONF_ACCOUNT_EMAIL = "account_email"
 CONF_TIER = "tier"
 CONF_SCAN_INTERVAL = "scan_interval"
 

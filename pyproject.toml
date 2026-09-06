@@ -1,6 +1,6 @@
 [project]
 name = "homeassistant-gemini-usage"
-version = "0.1.0"
+version = "0.2.0"
 description = "Home Assistant custom integration for Google Gemini Usage"
 readme = "README.md"
 license = { text = "GPL-3.0-only" }

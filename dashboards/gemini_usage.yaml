@@ -34,7 +34,7 @@ cards:
         show_hours: true
         show_minutes: true
         show_seconds: false
-        creation_date: "{{ (as_timestamp(states('sensor.google_gemini_antigravity_gemini_session_reset_time')) - 18000) | timestamp_custom('%Y-%m-%dT%H:%M:%S+00:00', false) }}"
+        creation_date: "{{ (as_timestamp(states('sensor.google_gemini_antigravity_gemini_session_reset_time'), 0) - 18000) | timestamp_custom('%Y-%m-%dT%H:%M:%S+00:00', false) }}"
         compact_format: true
         icon_size: 32
         tap_action:
@@ -65,7 +65,7 @@ cards:
         show_hours: true
         show_minutes: false
         show_seconds: false
-        creation_date: "{{ (as_timestamp(states('sensor.google_gemini_antigravity_gemini_weekly_reset_time')) - 604800) | timestamp_custom('%Y-%m-%dT%H:%M:%S+00:00', false) }}"
+        creation_date: "{{ (as_timestamp(states('sensor.google_gemini_antigravity_gemini_weekly_reset_time'), 0) - 604800) | timestamp_custom('%Y-%m-%dT%H:%M:%S+00:00', false) }}"
         compact_format: true
         icon_size: 32
         tap_action:

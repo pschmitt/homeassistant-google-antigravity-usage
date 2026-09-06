@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime, timedelta
 import json
 import logging
+from datetime import UTC, datetime, timedelta
 from typing import Any
+
 import aiohttp
 
 try:
@@ -18,14 +19,19 @@ except ImportError:
         def parse_datetime(val: str) -> datetime | None:
             try:
                 return datetime.fromisoformat(val.replace("Z", "+00:00"))
-            except Exception:
+            except (TypeError, ValueError):
                 return None
     def slugify(value: str, separator: str = "_") -> str:  # type: ignore[no-redef]
         value = re.sub(r"[^\w\s-]", "", value.lower()).strip()
         return re.sub(r"[-\s]+", separator, value)
 
+import asyncio
+from collections.abc import Callable
+
 from .const import (
     CODE_ASSIST_URL,
+    GOOGLE_USERINFO_URL,
+    OAUTH2_TOKEN_URL,
     QUOTA_API_URL,
     USER_INFO_URL,
     WINDOW_5H_SECONDS,
@@ -36,23 +42,32 @@ from .exceptions import GeminiUsageApiError, GeminiUsageAuthenticationError
 _LOGGER = logging.getLogger(__name__)
 
 
-def extract_bearer_token(raw_token: str) -> str:
-    """Extract raw bearer token from string or JSON."""
+def extract_tokens(raw_token: str) -> tuple[str, str | None]:
+    """Extract (access_token, refresh_token) from raw token string or JSON."""
     raw = raw_token.strip()
     if raw.startswith("{") and raw.endswith("}"):
         try:
             data = json.loads(raw)
             if "token" in data and isinstance(data["token"], dict):
-                return str(
+                access_token = str(
                     data["token"].get("access_token")
                     or data["token"].get("accessToken")
-                    or raw
+                    or ""
                 )
+                refresh_token = data["token"].get("refresh_token")
+                return access_token or raw, str(refresh_token) if refresh_token else None
             if "access_token" in data:
-                return str(data["access_token"])
+                refresh_token = data.get("refresh_token")
+                return str(data["access_token"]), str(refresh_token) if refresh_token else None
         except json.JSONDecodeError:
             pass
-    return raw
+    return raw, None
+
+
+def extract_bearer_token(raw_token: str) -> str:
+    """Extract raw bearer token from string or JSON."""
+    access_tok, _ = extract_tokens(raw_token)
+    return access_tok
 
 
 def _round_to_minute(iso_str: str | None) -> str | None:
@@ -75,22 +90,118 @@ def _round_to_minute(iso_str: str | None) -> str | None:
 class GeminiUsageApiClient:
     """API client for querying Google Gemini / Cloud Code Quota Summary."""
 
-    def __init__(self, session: aiohttp.ClientSession, token: str) -> None:
+    def __init__(
+        self,
+        session: aiohttp.ClientSession,
+        token: str,
+        refresh_token: str | None = None,
+        client_id: str | None = None,
+        client_secret: str | None = None,
+        on_token_refreshed: Callable[[str, str | None, int | None], Any] | None = None,
+    ) -> None:
         """Initialize API client."""
         self._session = session
         self._raw_token = token
+        access_tok, ref_tok = extract_tokens(token)
+        self._access_token = access_tok
+        self._refresh_token = refresh_token or ref_tok
+        self._client_id = client_id
+        self._client_secret = client_secret
+        self.on_token_refreshed = on_token_refreshed
 
     @property
     def bearer_token(self) -> str:
         """Get the extracted bearer token."""
-        return extract_bearer_token(self._raw_token)
+        return self._access_token or extract_bearer_token(self._raw_token)
 
-    def update_token(self, token: str) -> None:
+    @property
+    def access_token(self) -> str:
+        """Return the current access token."""
+        return self._access_token
+
+    @property
+    def refresh_token(self) -> str | None:
+        """Get the refresh token if available."""
+        return self._refresh_token
+
+    def update_token(self, token: str, refresh_token: str | None = None) -> None:
         """Update the stored token."""
         self._raw_token = token
+        access_tok, ref_tok = extract_tokens(token)
+        self._access_token = access_tok
+        if refresh_token:
+            self._refresh_token = refresh_token
+        elif ref_tok:
+            self._refresh_token = ref_tok
 
-    async def async_post_json(self, url: str) -> dict[str, Any]:
-        """Perform an authorized POST request."""
+    async def async_refresh_token(self) -> bool:
+        """Attempt to refresh OAuth access token using refresh_token."""
+        if not self._refresh_token:
+            _LOGGER.debug("No refresh token available to refresh access token")
+            return False
+        if not self._client_id:
+            _LOGGER.error("No OAuth client credentials available to refresh access token")
+            return False
+
+        _LOGGER.info("Refreshing expired Google Gemini OAuth access token...")
+        payload = {
+            "client_id": self._client_id,
+            "grant_type": "refresh_token",
+            "refresh_token": self._refresh_token,
+        }
+        if self._client_secret:
+            payload["client_secret"] = self._client_secret
+        try:
+            resp = await self._session.post(
+                OAUTH2_TOKEN_URL,
+                data=payload,
+                timeout=aiohttp.ClientTimeout(total=15),
+            )
+            if not resp.ok:
+                err_text = await resp.text()
+                _LOGGER.error(
+                    "Failed to refresh Google OAuth token (%s): %s", resp.status, err_text
+                )
+                return False
+
+            res_json = await resp.json()
+            new_access_token = res_json.get("access_token")
+            if not new_access_token:
+                _LOGGER.error(
+                    "No access_token returned in token refresh response: %s", res_json
+                )
+                return False
+
+            new_refresh_token = res_json.get("refresh_token")
+            if new_refresh_token:
+                self._refresh_token = str(new_refresh_token)
+            self._access_token = str(new_access_token)
+            expires_in = res_json.get("expires_in")
+            try:
+                expires_in = int(expires_in) if expires_in is not None else None
+            except (TypeError, ValueError):
+                expires_in = None
+            _LOGGER.info("Successfully refreshed Google Gemini OAuth access token!")
+
+            if self.on_token_refreshed:
+                try:
+                    res = self.on_token_refreshed(
+                        self._access_token, self._refresh_token, expires_in
+                    )
+                    if asyncio.iscoroutine(res):
+                        await res
+                except Exception as err:  # noqa: BLE001
+                    _LOGGER.warning("Error in on_token_refreshed callback: %s", err)
+
+            return True
+        except Exception as err:  # noqa: BLE001
+            _LOGGER.error("Exception occurred while refreshing Google OAuth token: %s", err)
+            return False
+
+    async def async_post_json(
+        self, url: str, retry_on_auth_fail: bool = True
+    ) -> dict[str, Any]:
+        """Perform an authorized POST request with auto-refresh on 401."""
         token = self.bearer_token
         headers = {
             "Authorization": f"Bearer {token}",
@@ -104,10 +215,15 @@ class GeminiUsageApiClient:
                 headers=headers,
                 timeout=aiohttp.ClientTimeout(total=15),
             )
-        except aiohttp.ClientError as err:
+        except (aiohttp.ClientError, TimeoutError, OSError) as err:
             raise GeminiUsageApiError(f"Network connection error: {err}") from err
 
         if resp.status in (401, 403):
+            if retry_on_auth_fail and self._refresh_token:
+                _LOGGER.debug("Received %s, attempting OAuth token refresh...", resp.status)
+                refreshed = await self.async_refresh_token()
+                if refreshed:
+                    return await self.async_post_json(url, retry_on_auth_fail=False)
             raise GeminiUsageAuthenticationError(
                 f"Authentication failed ({resp.status}): Invalid or expired token"
             )
@@ -130,13 +246,55 @@ class GeminiUsageApiClient:
             tier_info = tier_data.get("currentTier", {})
             if isinstance(tier_info, dict) and tier_info.get("name"):
                 tier_name = tier_info["name"]
-        except Exception:  # noqa: BLE001
+        except GeminiUsageAuthenticationError:
+            raise
+        except GeminiUsageApiError:
             pass
+
 
         return {
             "title": f"Google Gemini ({tier_name})",
             "tier": tier_name,
             "quota_summary": quota_data,
+        }
+
+    async def async_fetch_account_info(
+        self, retry_on_auth_fail: bool = True
+    ) -> dict[str, Any]:
+        """Fetch the Google account identity associated with the token."""
+        headers = {"Authorization": f"Bearer {self.bearer_token}"}
+        try:
+            resp = await self._session.get(
+                GOOGLE_USERINFO_URL,
+                headers=headers,
+                timeout=aiohttp.ClientTimeout(total=15),
+            )
+        except (aiohttp.ClientError, TimeoutError, OSError) as err:
+            raise GeminiUsageApiError(f"Network connection error: {err}") from err
+
+        if resp.status in (401, 403):
+            if retry_on_auth_fail and self._refresh_token and await self.async_refresh_token():
+                return await self.async_fetch_account_info(retry_on_auth_fail=False)
+            raise GeminiUsageAuthenticationError(
+                f"Account identity request failed ({resp.status})"
+            )
+
+        if not resp.ok:
+            body = await resp.text()
+            raise GeminiUsageApiError(f"Account identity request failed ({resp.status}): {body}")
+
+        try:
+            data = await resp.json()
+        except ValueError as err:
+            raise GeminiUsageApiError("Invalid account identity response") from err
+
+        account_id = data.get("sub") or data.get("id")
+        if not account_id:
+            raise GeminiUsageApiError("Google account identity response missing subject")
+        return {
+            "account_id": str(account_id),
+            "account_name": data.get("name") or data.get("email"),
+            "account_email": data.get("email"),
         }
 
     async def async_fetch_usage(self) -> dict[str, Any]:
@@ -155,13 +313,17 @@ class GeminiUsageApiClient:
                 tier_name = tier_info.get("name", tier_name)
                 tier_id = tier_info.get("id")
             project_id = tier_data.get("cloudaicompanionProject")
-        except Exception as err:
+        except GeminiUsageAuthenticationError:
+            raise
+        except GeminiUsageApiError as err:
             _LOGGER.debug("Could not fetch tier info: %s", err)
 
         try:
             user_info = await self.async_post_json(USER_INFO_URL)
             region_code = user_info.get("regionCode")
-        except Exception as err:
+        except GeminiUsageAuthenticationError:
+            raise
+        except GeminiUsageApiError as err:
             _LOGGER.debug("Could not fetch user info: %s", err)
 
         return self._parse_payload(

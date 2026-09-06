@@ -84,7 +84,6 @@ def _build_descriptions(
     bucket_key: str, bucket_data: dict[str, Any]
 ) -> list[GeminiBucketSensorDescription]:
     """Build sensor descriptions for a quota bucket."""
-    display_name = bucket_data.get("display_name", bucket_key.replace("_", " ").title())
     group_name = bucket_data.get("group_name", "")
     window = bucket_data.get("window", "")
 

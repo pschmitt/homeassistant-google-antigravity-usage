@@ -3,16 +3,18 @@
     "step": {
       "user": {
         "title": "Google Gemini Usage",
-        "description": "Enter your Google OAuth or Antigravity access token (or the JSON contents of ~/.gemini/antigravity-cli/antigravity-oauth-token).",
+        "description": "To sign in with Google, [open the authorization page]({url}) and complete the sign-in. Google will redirect to a localhost URL; copy the complete URL from your browser and paste it into the Authorization Code field below.\n\nFor older Antigravity credentials, you can alternatively paste the access-token JSON below.",
         "data": {
-          "token": "Access Token / Token JSON"
+          "auth_code": "Authorization Code or Redirect URL",
+          "token": "Legacy Access Token / Token JSON"
         }
       },
       "reauth_confirm": {
         "title": "Re-authenticate Google Gemini",
-        "description": "Enter a fresh access token for {name}.",
+        "description": "Re-authenticate **{name}**. [Open the Google authorization page]({url}) and complete the sign-in. Google will redirect to a localhost URL; copy the complete URL from your browser and paste it into the Authorization Code field below.\n\nYou can alternatively paste a fresh legacy access-token JSON below.",
         "data": {
-          "token": "Access Token / Token JSON"
+          "auth_code": "Authorization Code or Redirect URL",
+          "token": "Legacy Access Token / Token JSON"
         }
       }
     },
@@ -20,7 +22,9 @@
       "cannot_connect": "Failed to connect to Google Cloud Code service",
       "invalid_auth": "Invalid or expired token",
       "missing_token": "Token is required",
-      "unknown": "Unexpected error"
+      "unknown": "Unexpected error",
+      "exchange_failed": "Failed to exchange the authorization code. Paste the complete redirect URL, or try again.",
+      "missing_credentials": "Provide an authorization code, redirect URL, or legacy access token."
     },
     "abort": {
       "already_configured": "Account is already configured",

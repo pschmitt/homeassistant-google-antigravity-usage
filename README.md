@@ -29,7 +29,23 @@ A custom Home Assistant integration that monitors your Google Gemini and Antigra
 
 ## Setup
 
-Enter your Google OAuth access token or the JSON content from `~/.gemini/antigravity-cli/antigravity-oauth-token`.
+Before adding the integration, create a **Google Gemini Usage** application
+credential under **Settings > Devices & services > Application credentials**.
+Enter the OAuth client ID and secret from your Google Cloud project there.
+Home Assistant stores these credentials in its protected application-credential
+store; they are not part of this integration repository.
+
+The setup flow then opens the Google authorization URL used by Antigravity. After
+signing in, Google redirects to a localhost URL; paste the complete redirected
+URL (or its authorization code) back into Home Assistant. The flow uses PKCE
+and requests offline access so the integration can refresh access tokens.
+
+Existing installations can still use the JSON content from
+`~/.gemini/antigravity-cli/antigravity-oauth-token` as a legacy fallback.
+
+Multiple Google accounts are supported when the OAuth token exposes the Google
+account identity. Entries are deduplicated by Google's stable account subject,
+not by the subscription tier.
 
 ## License
 

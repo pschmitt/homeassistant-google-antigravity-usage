@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "title": "Google Gemini Usage",
+        "title": "Google Antigravity Usage",
         "description": "To sign in with Google, [open the authorization page]({url}) and complete the sign-in. Google will redirect to a localhost URL; copy the complete URL from your browser and paste it into the Authorization Code field below.\n\nFor older Antigravity credentials, you can alternatively paste the access-token JSON below.",
         "data": {
           "auth_code": "Authorization Code or Redirect URL",
@@ -10,7 +10,7 @@
         }
       },
       "reauth_confirm": {
-        "title": "Re-authenticate Google Gemini",
+        "title": "Re-authenticate Google Antigravity",
         "description": "Re-authenticate **{name}**. [Open the Google authorization page]({url}) and complete the sign-in. Google will redirect to a localhost URL; copy the complete URL from your browser and paste it into the Authorization Code field below.\n\nYou can alternatively paste a fresh legacy access-token JSON below.",
         "data": {
           "auth_code": "Authorization Code or Redirect URL",
@@ -24,8 +24,7 @@
       "missing_token": "Token is required",
       "unknown": "Unexpected error",
       "exchange_failed": "Failed to exchange the authorization code. Paste the complete redirect URL, or try again.",
-      "missing_credentials": "Provide an authorization code, redirect URL, or legacy access token.",
-      "oauth_credentials_missing": "Configure a Google Gemini OAuth client under Settings > Devices & services > Application credentials before using browser sign-in."
+      "missing_credentials": "Provide an authorization code, redirect URL, or legacy access token."
     },
     "abort": {
       "already_configured": "Account is already configured",
@@ -35,7 +34,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "Google Gemini Usage Options",
+        "title": "Google Antigravity Usage Options",
         "data": {
           "scan_interval": "Update interval (seconds)"
         }

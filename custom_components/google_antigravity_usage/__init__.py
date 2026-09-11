@@ -1,4 +1,4 @@
-"""Google Gemini Usage integration for Home Assistant."""
+"""Google Antigravity Usage integration for Home Assistant."""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ from homeassistant.helpers import aiohttp_client
 from homeassistant.helpers import config_entry_oauth2_flow
 from homeassistant.helpers.config_entry_oauth2_flow import ImplementationUnavailableError
 
-from .api import GeminiUsageApiClient
+from .api import GoogleAntigravityUsageApiClient
 from .const import (
     CONF_ACCOUNT_EMAIL,
     CONF_ACCOUNT_ID,
@@ -28,7 +28,7 @@ from .const import (
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
 )
-from .coordinator import GeminiUsageCoordinator
+from .coordinator import GoogleAntigravityUsageCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -42,12 +42,12 @@ async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     account_info: dict[str, Any] = {}
     session = aiohttp_client.async_get_clientsession(hass)
-    client = GeminiUsageApiClient(session=session, token=entry.data[CONF_TOKEN])
+    client = GoogleAntigravityUsageApiClient(session=session, token=entry.data[CONF_TOKEN])
     try:
         account_info = await client.async_fetch_account_info()
     except Exception:  # noqa: BLE001
         _LOGGER.warning(
-            "Could not identify the Google account while migrating Gemini Usage entry %s",
+            "Could not identify the Google account while migrating Antigravity Usage entry %s",
             entry.entry_id,
         )
 
@@ -73,7 +73,7 @@ async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up Google Gemini Usage from a config entry."""
+    """Set up Google Antigravity Usage from a config entry."""
     session = aiohttp_client.async_get_clientsession(hass)
     token = entry.data[CONF_TOKEN]
 
@@ -119,10 +119,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                         parsed["token"]["refresh_token"] = new_refresh_token
                     data[CONF_TOKEN] = json.dumps(parsed)
             except json.JSONDecodeError:
-                _LOGGER.debug("Stored Gemini token JSON could not be updated")
+                _LOGGER.debug("Stored Antigravity token JSON could not be updated")
         hass.config_entries.async_update_entry(entry, data=data)
 
-    client = GeminiUsageApiClient(
+    client = GoogleAntigravityUsageApiClient(
         session=session,
         token=token,
         refresh_token=entry.data.get(CONF_REFRESH_TOKEN),
@@ -132,7 +132,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
 
     scan_interval = entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
-    coordinator = GeminiUsageCoordinator(
+    coordinator = GoogleAntigravityUsageCoordinator(
         hass=hass,
         entry=entry,
         client=client,
@@ -161,6 +161,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Handle options update."""
-    coordinator: GeminiUsageCoordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
+    coordinator: GoogleAntigravityUsageCoordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
     interval = entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
     coordinator.update_interval = timedelta(seconds=interval)

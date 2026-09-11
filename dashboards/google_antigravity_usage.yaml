@@ -1,8 +1,8 @@
-# Google Gemini Usage Lovelace Cards Example
+# Google Antigravity Usage Lovelace Cards Example
 type: vertical-stack
 cards:
   - type: heading
-    heading: Google Gemini
+    heading: Google Antigravity
     heading_style: subtitle
     icon: mdi:google
   - type: grid
@@ -10,13 +10,13 @@ cards:
     columns: 2
     cards:
       - type: custom:mushroom-template-card
-        primary: "{{ states('sensor.google_gemini_antigravity_gemini_session_usage') | float(0) | round(0) }}%"
+        primary: "{{ states('sensor.google_antigravity_gemini_session_usage') | float(0) | round(0) }}%"
         secondary: Session
         icon: mdi:timer-sand
-        entity: sensor.google_gemini_antigravity_gemini_session_usage
+        entity: sensor.google_antigravity_gemini_session_usage
         icon_color: >-
-          {%- set v = states('sensor.google_gemini_antigravity_gemini_session_usage') | float(0) -%}
-          {%- set reset_ts = as_timestamp(states('sensor.google_gemini_antigravity_gemini_session_reset_time'), 0) -%}
+          {%- set v = states('sensor.google_antigravity_gemini_session_usage') | float(0) -%}
+          {%- set reset_ts = as_timestamp(states('sensor.google_antigravity_gemini_session_reset_time'), 0) -%}
           {%- set window = 18000 -%}
           {%- set remaining = [reset_ts - as_timestamp(now()), 0] | max -%}
           {%- set elapsed = [window - remaining, 1] | max -%}
@@ -28,26 +28,26 @@ cards:
       - type: custom:timeflow-card
         style: classic-compact
         mode: count_down
-        target_date: sensor.google_gemini_antigravity_gemini_session_reset_time
+        target_date: sensor.google_antigravity_gemini_session_reset_time
         title: Session reset
         show_days: false
         show_hours: true
         show_minutes: true
         show_seconds: false
-        creation_date: "{{ (as_timestamp(states('sensor.google_gemini_antigravity_gemini_session_reset_time'), 0) - 18000) | timestamp_custom('%Y-%m-%dT%H:%M:%S+00:00', false) }}"
+        creation_date: "{{ (as_timestamp(states('sensor.google_antigravity_gemini_session_reset_time'), 0) - 18000) | timestamp_custom('%Y-%m-%dT%H:%M:%S+00:00', false) }}"
         compact_format: true
         icon_size: 32
         tap_action:
           action: more-info
-          entity: sensor.google_gemini_antigravity_gemini_session_reset_time
+          entity: sensor.google_antigravity_gemini_session_reset_time
       - type: custom:mushroom-template-card
-        primary: "{{ states('sensor.google_gemini_antigravity_gemini_weekly_usage') | float(0) | round(0) }}%"
+        primary: "{{ states('sensor.google_antigravity_gemini_weekly_usage') | float(0) | round(0) }}%"
         secondary: Weekly
         icon: mdi:calendar-week
-        entity: sensor.google_gemini_antigravity_gemini_weekly_usage
+        entity: sensor.google_antigravity_gemini_weekly_usage
         icon_color: >-
-          {%- set v = states('sensor.google_gemini_antigravity_gemini_weekly_usage') | float(0) -%}
-          {%- set reset_ts = as_timestamp(states('sensor.google_gemini_antigravity_gemini_weekly_reset_time'), 0) -%}
+          {%- set v = states('sensor.google_antigravity_gemini_weekly_usage') | float(0) -%}
+          {%- set reset_ts = as_timestamp(states('sensor.google_antigravity_gemini_weekly_reset_time'), 0) -%}
           {%- set window = 604800 -%}
           {%- set remaining = [reset_ts - as_timestamp(now()), 0] | max -%}
           {%- set elapsed = [window - remaining, 1] | max -%}
@@ -59,15 +59,15 @@ cards:
       - type: custom:timeflow-card
         style: classic-compact
         mode: count_down
-        target_date: sensor.google_gemini_antigravity_gemini_weekly_reset_time
+        target_date: sensor.google_antigravity_gemini_weekly_reset_time
         title: Weekly reset
         show_days: true
         show_hours: true
         show_minutes: false
         show_seconds: false
-        creation_date: "{{ (as_timestamp(states('sensor.google_gemini_antigravity_gemini_weekly_reset_time'), 0) - 604800) | timestamp_custom('%Y-%m-%dT%H:%M:%S+00:00', false) }}"
+        creation_date: "{{ (as_timestamp(states('sensor.google_antigravity_gemini_weekly_reset_time'), 0) - 604800) | timestamp_custom('%Y-%m-%dT%H:%M:%S+00:00', false) }}"
         compact_format: true
         icon_size: 32
         tap_action:
           action: more-info
-          entity: sensor.google_gemini_antigravity_gemini_weekly_reset_time
+          entity: sensor.google_antigravity_gemini_weekly_reset_time

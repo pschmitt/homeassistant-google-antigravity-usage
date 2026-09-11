@@ -1,10 +1,10 @@
-"""Constants for Google Gemini Usage integration."""
+"""Constants for Google Antigravity Usage integration."""
 
 from __future__ import annotations
 
 from datetime import timedelta
 
-DOMAIN = "gemini_usage"
+DOMAIN = "google_antigravity_usage"
 
 # Endpoints
 # Antigravity uses the daily quota backend. The non-daily endpoint can return

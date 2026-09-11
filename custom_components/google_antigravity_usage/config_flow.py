@@ -1,4 +1,4 @@
-"""Config flow for Google Gemini Usage."""
+"""Config flow for Google Antigravity Usage."""
 
 from __future__ import annotations
 
@@ -36,7 +36,7 @@ from homeassistant.helpers.selector import (
 )
 from homeassistant.util import slugify
 
-from .api import GeminiUsageApiClient
+from .api import GoogleAntigravityUsageApiClient
 from .const import (
     CONF_ACCOUNT_EMAIL,
     CONF_ACCOUNT_ID,
@@ -55,7 +55,7 @@ from .const import (
     OAUTH_REDIRECT_URI,
     OAUTH_SCOPES,
 )
-from .exceptions import GeminiUsageApiError, GeminiUsageAuthenticationError
+from .exceptions import GoogleAntigravityUsageApiError, GoogleAntigravityUsageAuthenticationError
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -73,7 +73,7 @@ async def _validate_input(
 ) -> dict[str, Any]:
     """Validate a token and fetch account and plan information."""
     session = async_get_clientsession(hass)
-    client = GeminiUsageApiClient(
+    client = GoogleAntigravityUsageApiClient(
         session=session, token=token, refresh_token=refresh_token
     )
     info = await client.async_validate()
@@ -81,7 +81,7 @@ async def _validate_input(
     account_info: dict[str, Any] = {}
     try:
         account_info = await client.async_fetch_account_info()
-    except (GeminiUsageApiError, GeminiUsageAuthenticationError) as err:
+    except (GoogleAntigravityUsageApiError, GoogleAntigravityUsageAuthenticationError) as err:
         # Older Antigravity tokens may not include userinfo scopes. They remain
         # valid for quota polling, so retain the tier fallback for those tokens.
         _LOGGER.debug("Could not identify Google account during setup: %s", err)
@@ -106,12 +106,12 @@ def _build_title(tier: str, account_name: str | None, account_email: str | None)
     """Build a useful config-entry title."""
     account = account_name or account_email
     if account and account != tier:
-        return f"Google Gemini ({account} - {tier})"
-    return f"Google Gemini ({tier})"
+        return f"Google Antigravity ({account} - {tier})"
+    return f"Google Antigravity ({tier})"
 
 
-class GeminiUsageConfigFlow(ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for Google Gemini Usage."""
+class GoogleAntigravityUsageConfigFlow(ConfigFlow, domain=DOMAIN):
+    """Handle a config flow for Google Antigravity Usage."""
 
     VERSION = 2
 
@@ -126,9 +126,9 @@ class GeminiUsageConfigFlow(ConfigFlow, domain=DOMAIN):
 
     @staticmethod
     @callback
-    def async_get_options_flow(config_entry: ConfigEntry) -> GeminiUsageOptionsFlow:
+    def async_get_options_flow(config_entry: ConfigEntry) -> GoogleAntigravityUsageOptionsFlow:
         """Return the options flow."""
-        return GeminiUsageOptionsFlow()
+        return GoogleAntigravityUsageOptionsFlow()
 
     async def _async_prepare_oauth(self, existing_entry: ConfigEntry | None) -> bool:
         """Load the OAuth client credentials configured in Home Assistant."""
@@ -306,12 +306,12 @@ class GeminiUsageConfigFlow(ConfigFlow, domain=DOMAIN):
             if token_data is not None:
                 try:
                     return await self._async_finish(token_data, existing_entry)
-                except GeminiUsageAuthenticationError:
+                except GoogleAntigravityUsageAuthenticationError:
                     errors["base"] = "invalid_auth"
-                except GeminiUsageApiError:
+                except GoogleAntigravityUsageApiError:
                     errors["base"] = "cannot_connect"
                 except Exception:
-                    _LOGGER.exception("Unexpected exception validating Gemini Usage config")
+                    _LOGGER.exception("Unexpected exception validating Antigravity Usage config")
                     errors["base"] = "unknown"
 
         return self.async_show_form(
@@ -326,7 +326,7 @@ class GeminiUsageConfigFlow(ConfigFlow, domain=DOMAIN):
             ),
             description_placeholders={
                 "url": self._oauth_url or "https://accounts.google.com/",
-                "name": existing_entry.title if existing_entry else "Google Gemini",
+                "name": existing_entry.title if existing_entry else "Google Antigravity",
             },
             errors=errors,
         )
@@ -354,8 +354,8 @@ class GeminiUsageConfigFlow(ConfigFlow, domain=DOMAIN):
         return await self._async_step_auth("reauth_confirm", user_input)
 
 
-class GeminiUsageOptionsFlow(OptionsFlow):
-    """Handle options for Google Gemini Usage."""
+class GoogleAntigravityUsageOptionsFlow(OptionsFlow):
+    """Handle options for Google Antigravity Usage."""
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None

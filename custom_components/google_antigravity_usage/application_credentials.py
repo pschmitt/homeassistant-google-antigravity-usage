@@ -1,4 +1,4 @@
-"""Application credentials platform for Google Gemini Usage."""
+"""Application credentials platform for Google Antigravity Usage."""
 
 from homeassistant.components.application_credentials import ClientCredential
 from homeassistant.core import HomeAssistant

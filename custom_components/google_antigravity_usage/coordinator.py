@@ -1,4 +1,4 @@
-"""DataUpdateCoordinator for Google Gemini Usage."""
+"""DataUpdateCoordinator for Google Antigravity Usage."""
 
 from __future__ import annotations
 
@@ -12,19 +12,19 @@ from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.util import dt as dt_util
 
-from .api import GeminiUsageApiClient
+from .api import GoogleAntigravityUsageApiClient
 from .const import (
     DOMAIN,
     RESET_TIME_JITTER_CONFIRMATIONS,
     RESET_TIME_JITTER_TOLERANCE,
 )
-from .exceptions import GeminiUsageApiError, GeminiUsageAuthenticationError
+from .exceptions import GoogleAntigravityUsageApiError, GoogleAntigravityUsageAuthenticationError
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class GeminiUsageCoordinator(DataUpdateCoordinator[dict[str, Any]]):
-    """Coordinator to fetch Gemini usage data."""
+class GoogleAntigravityUsageCoordinator(DataUpdateCoordinator[dict[str, Any]]):
+    """Coordinator to fetch Antigravity usage data."""
 
     config_entry: ConfigEntry
 
@@ -32,7 +32,7 @@ class GeminiUsageCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self,
         hass: HomeAssistant,
         entry: ConfigEntry,
-        client: GeminiUsageApiClient,
+        client: GoogleAntigravityUsageApiClient,
         update_interval_seconds: int,
     ) -> None:
         """Initialize the coordinator."""
@@ -51,9 +51,9 @@ class GeminiUsageCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         """Fetch usage data from the API."""
         try:
             data = await self.client.async_fetch_usage()
-        except GeminiUsageAuthenticationError as err:
+        except GoogleAntigravityUsageAuthenticationError as err:
             raise ConfigEntryAuthFailed(str(err)) from err
-        except GeminiUsageApiError as err:
+        except GoogleAntigravityUsageApiError as err:
             raise UpdateFailed(str(err)) from err
 
         return self._stabilize_reset_times(data)

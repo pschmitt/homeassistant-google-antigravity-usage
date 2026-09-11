@@ -1,10 +1,10 @@
-# Google Gemini Usage - Home Assistant Integration
+# Google Antigravity Usage - Home Assistant Integration
 
-A custom Home Assistant integration that monitors your Google Gemini and Antigravity subscription quotas and rate limits.
+A custom Home Assistant integration that monitors your Google Antigravity subscription quotas and rate limits.
 
 ## Sensors
 
-- **Gemini Session Usage** - Current 5-hour session utilization (%)
+- **Gemini Session Usage** - Current 5-hour session utilization for first-party Gemini models (%)
 - **Gemini Session Remaining** - Remaining 5-hour quota (%)
 - **Gemini Session Reset Time** - When the 5-hour session limit resets
 - **Gemini Weekly Usage** - Current 7-day utilization (%)
@@ -18,18 +18,18 @@ A custom Home Assistant integration that monitors your Google Gemini and Antigra
 
 ### HACS
 1. Add this repository to HACS as a custom repository (Integration).
-2. Install **Google Gemini Usage**.
+2. Install **Google Antigravity Usage**.
 3. Restart Home Assistant.
-4. Go to **Settings > Devices & Services > Add Integration > Google Gemini Usage**.
+4. Go to **Settings > Devices & Services > Add Integration > Google Antigravity Usage**.
 
 ### Manual
-1. Copy `custom_components/gemini_usage/` into `/config/custom_components/gemini_usage/`.
+1. Copy `custom_components/google_antigravity_usage/` into `/config/custom_components/google_antigravity_usage/`.
 2. Restart Home Assistant.
 3. Add the integration via the UI.
 
 ## Setup
 
-Before adding the integration, create a **Google Gemini Usage** application
+Before adding the integration, create a **Google Antigravity Usage** application
 credential under **Settings > Devices & services > Application credentials**.
 Enter the OAuth client ID and secret from your Google Cloud project there.
 Home Assistant stores these credentials in its protected application-credential

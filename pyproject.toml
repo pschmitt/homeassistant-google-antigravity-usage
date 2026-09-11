@@ -1,7 +1,7 @@
 [project]
-name = "homeassistant-gemini-usage"
-version = "0.2.0"
-description = "Home Assistant custom integration for Google Gemini Usage"
+name = "homeassistant-google-antigravity-usage"
+version = "0.3.0"
+description = "Home Assistant custom integration for Google Antigravity Usage"
 readme = "README.md"
 license = { text = "GPL-3.0-only" }
 authors = [{ name = "Philipp Schmitt" }]

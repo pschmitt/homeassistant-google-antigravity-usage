@@ -1,4 +1,4 @@
-"""Sensor platform for Google Gemini Usage."""
+"""Sensor platform for Google Antigravity Usage."""
 
 from __future__ import annotations
 
@@ -18,13 +18,13 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN
-from .coordinator import GeminiUsageCoordinator
-from .entity import GeminiUsageEntity
+from .coordinator import GoogleAntigravityUsageCoordinator
+from .entity import GoogleAntigravityUsageEntity
 
 
 @dataclass(frozen=True, kw_only=True)
-class GeminiBucketSensorDescription(SensorEntityDescription):
-    """Describe a Gemini bucket sensor."""
+class AntigravityBucketSensorDescription(SensorEntityDescription):
+    """Describe a quota bucket sensor."""
 
     bucket_key: str
     metric: str
@@ -35,8 +35,8 @@ async def async_setup_entry(
     config_entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up Google Gemini Usage sensors from a config entry."""
-    coordinator: GeminiUsageCoordinator = hass.data[DOMAIN][config_entry.entry_id]["coordinator"]
+    """Set up Google Antigravity Usage sensors from a config entry."""
+    coordinator: GoogleAntigravityUsageCoordinator = hass.data[DOMAIN][config_entry.entry_id]["coordinator"]
     known_entities: set[str] = set()
 
     @callback
@@ -46,7 +46,7 @@ async def async_setup_entry(
         tier_unique_id = f"{config_entry.entry_id}_tier"
         if tier_unique_id not in known_entities:
             known_entities.add(tier_unique_id)
-            new_entities.append(GeminiTierSensor(coordinator, tier_unique_id))
+            new_entities.append(AntigravityTierSensor(coordinator, tier_unique_id))
 
         buckets = coordinator.data.get("buckets")
         if isinstance(buckets, dict):
@@ -58,7 +58,7 @@ async def async_setup_entry(
                     known_entities.add(unique_id)
                     if desc.metric == "reset_time":
                         new_entities.append(
-                            GeminiResetTimestampSensor(
+                            AntigravityResetTimestampSensor(
                                 coordinator=coordinator,
                                 description=desc,
                                 unique_id=unique_id,
@@ -66,7 +66,7 @@ async def async_setup_entry(
                         )
                     else:
                         new_entities.append(
-                            GeminiBucketMetricSensor(
+                            AntigravityBucketMetricSensor(
                                 coordinator=coordinator,
                                 description=desc,
                                 unique_id=unique_id,
@@ -82,12 +82,12 @@ async def async_setup_entry(
 
 def _build_descriptions(
     bucket_key: str, bucket_data: dict[str, Any]
-) -> list[GeminiBucketSensorDescription]:
+) -> list[AntigravityBucketSensorDescription]:
     """Build sensor descriptions for a quota bucket."""
     group_name = bucket_data.get("group_name", "")
     window = bucket_data.get("window", "")
 
-    prefix = group_name if group_name else "Gemini"
+    prefix = group_name if group_name else "Antigravity"
     if "gemini" in bucket_key:
         prefix = "Gemini"
     elif "3p" in bucket_key:
@@ -96,7 +96,7 @@ def _build_descriptions(
     window_label = "Session" if window == "5h" else "Weekly" if window == "weekly" else window.title()
 
     descriptions = [
-        GeminiBucketSensorDescription(
+        AntigravityBucketSensorDescription(
             key=f"{bucket_key}_used",
             bucket_key=bucket_key,
             metric="percent_used",
@@ -105,7 +105,7 @@ def _build_descriptions(
             icon="mdi:timer-sand" if window == "5h" else "mdi:calendar-week",
             state_class=SensorStateClass.MEASUREMENT,
         ),
-        GeminiBucketSensorDescription(
+        AntigravityBucketSensorDescription(
             key=f"{bucket_key}_remaining",
             bucket_key=bucket_key,
             metric="percent_remaining",
@@ -114,7 +114,7 @@ def _build_descriptions(
             icon="mdi:battery-high",
             state_class=SensorStateClass.MEASUREMENT,
         ),
-        GeminiBucketSensorDescription(
+        AntigravityBucketSensorDescription(
             key=f"{bucket_key}_reset_time",
             bucket_key=bucket_key,
             metric="reset_time",
@@ -126,7 +126,7 @@ def _build_descriptions(
 
     if window == "weekly":
         descriptions.append(
-            GeminiBucketSensorDescription(
+            AntigravityBucketSensorDescription(
                 key=f"{bucket_key}_pace",
                 bucket_key=bucket_key,
                 metric="pace",
@@ -140,10 +140,10 @@ def _build_descriptions(
     return descriptions
 
 
-class GeminiTierSensor(GeminiUsageEntity, SensorEntity):
-    """Sensor for Google Gemini tier / plan."""
+class AntigravityTierSensor(GoogleAntigravityUsageEntity, SensorEntity):
+    """Sensor for Google Antigravity tier / plan."""
 
-    def __init__(self, coordinator: GeminiUsageCoordinator, unique_id: str) -> None:
+    def __init__(self, coordinator: GoogleAntigravityUsageCoordinator, unique_id: str) -> None:
         """Initialize tier sensor."""
         super().__init__(coordinator)
         self._attr_name = "Plan Tier"
@@ -165,15 +165,15 @@ class GeminiTierSensor(GeminiUsageEntity, SensorEntity):
         }
 
 
-class GeminiBucketMetricSensor(GeminiUsageEntity, SensorEntity):
-    """Sensor for a numerical metric within a Gemini bucket."""
+class AntigravityBucketMetricSensor(GoogleAntigravityUsageEntity, SensorEntity):
+    """Sensor for a numerical metric within a quota bucket."""
 
-    entity_description: GeminiBucketSensorDescription
+    entity_description: AntigravityBucketSensorDescription
 
     def __init__(
         self,
-        coordinator: GeminiUsageCoordinator,
-        description: GeminiBucketSensorDescription,
+        coordinator: GoogleAntigravityUsageCoordinator,
+        description: AntigravityBucketSensorDescription,
         unique_id: str,
     ) -> None:
         """Initialize metric sensor."""
@@ -221,15 +221,15 @@ class GeminiBucketMetricSensor(GeminiUsageEntity, SensorEntity):
         }
 
 
-class GeminiResetTimestampSensor(GeminiUsageEntity, SensorEntity):
-    """Sensor for a reset timestamp within a Gemini bucket."""
+class AntigravityResetTimestampSensor(GoogleAntigravityUsageEntity, SensorEntity):
+    """Sensor for a reset timestamp within a quota bucket."""
 
-    entity_description: GeminiBucketSensorDescription
+    entity_description: AntigravityBucketSensorDescription
 
     def __init__(
         self,
-        coordinator: GeminiUsageCoordinator,
-        description: GeminiBucketSensorDescription,
+        coordinator: GoogleAntigravityUsageCoordinator,
+        description: AntigravityBucketSensorDescription,
         unique_id: str,
     ) -> None:
         """Initialize reset timestamp sensor."""

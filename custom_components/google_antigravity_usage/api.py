@@ -1,4 +1,4 @@
-"""API client for Google Gemini Usage."""
+"""API client for Google Antigravity Usage."""
 
 from __future__ import annotations
 
@@ -37,7 +37,7 @@ from .const import (
     WINDOW_5H_SECONDS,
     WINDOW_WEEKLY_SECONDS,
 )
-from .exceptions import GeminiUsageApiError, GeminiUsageAuthenticationError
+from .exceptions import GoogleAntigravityUsageApiError, GoogleAntigravityUsageAuthenticationError
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -87,8 +87,8 @@ def _round_to_minute(iso_str: str | None) -> str | None:
         return iso_str
 
 
-class GeminiUsageApiClient:
-    """API client for querying Google Gemini / Cloud Code Quota Summary."""
+class GoogleAntigravityUsageApiClient:
+    """API client for querying Google Antigravity / Cloud Code Quota Summary."""
 
     def __init__(
         self,
@@ -143,7 +143,7 @@ class GeminiUsageApiClient:
             _LOGGER.error("No OAuth client credentials available to refresh access token")
             return False
 
-        _LOGGER.info("Refreshing expired Google Gemini OAuth access token...")
+        _LOGGER.info("Refreshing expired Google Antigravity OAuth access token...")
         payload = {
             "client_id": self._client_id,
             "grant_type": "refresh_token",
@@ -181,7 +181,7 @@ class GeminiUsageApiClient:
                 expires_in = int(expires_in) if expires_in is not None else None
             except (TypeError, ValueError):
                 expires_in = None
-            _LOGGER.info("Successfully refreshed Google Gemini OAuth access token!")
+            _LOGGER.info("Successfully refreshed Google Antigravity OAuth access token!")
 
             if self.on_token_refreshed:
                 try:
@@ -216,7 +216,7 @@ class GeminiUsageApiClient:
                 timeout=aiohttp.ClientTimeout(total=15),
             )
         except (aiohttp.ClientError, TimeoutError, OSError) as err:
-            raise GeminiUsageApiError(f"Network connection error: {err}") from err
+            raise GoogleAntigravityUsageApiError(f"Network connection error: {err}") from err
 
         if resp.status in (401, 403):
             if retry_on_auth_fail and self._refresh_token:
@@ -224,18 +224,18 @@ class GeminiUsageApiClient:
                 refreshed = await self.async_refresh_token()
                 if refreshed:
                     return await self.async_post_json(url, retry_on_auth_fail=False)
-            raise GeminiUsageAuthenticationError(
+            raise GoogleAntigravityUsageAuthenticationError(
                 f"Authentication failed ({resp.status}): Invalid or expired token"
             )
 
         if not resp.ok:
             body = await resp.text()
-            raise GeminiUsageApiError(f"API request failed ({resp.status}): {body}")
+            raise GoogleAntigravityUsageApiError(f"API request failed ({resp.status}): {body}")
 
         try:
             return await resp.json()
         except ValueError as err:
-            raise GeminiUsageApiError("Invalid JSON response from server") from err
+            raise GoogleAntigravityUsageApiError("Invalid JSON response from server") from err
 
     async def async_validate(self) -> dict[str, Any]:
         """Validate credentials and return basic profile info."""
@@ -246,14 +246,14 @@ class GeminiUsageApiClient:
             tier_info = tier_data.get("currentTier", {})
             if isinstance(tier_info, dict) and tier_info.get("name"):
                 tier_name = tier_info["name"]
-        except GeminiUsageAuthenticationError:
+        except GoogleAntigravityUsageAuthenticationError:
             raise
-        except GeminiUsageApiError:
+        except GoogleAntigravityUsageApiError:
             pass
 
 
         return {
-            "title": f"Google Gemini ({tier_name})",
+            "title": f"Google Antigravity ({tier_name})",
             "tier": tier_name,
             "quota_summary": quota_data,
         }
@@ -270,27 +270,27 @@ class GeminiUsageApiClient:
                 timeout=aiohttp.ClientTimeout(total=15),
             )
         except (aiohttp.ClientError, TimeoutError, OSError) as err:
-            raise GeminiUsageApiError(f"Network connection error: {err}") from err
+            raise GoogleAntigravityUsageApiError(f"Network connection error: {err}") from err
 
         if resp.status in (401, 403):
             if retry_on_auth_fail and self._refresh_token and await self.async_refresh_token():
                 return await self.async_fetch_account_info(retry_on_auth_fail=False)
-            raise GeminiUsageAuthenticationError(
+            raise GoogleAntigravityUsageAuthenticationError(
                 f"Account identity request failed ({resp.status})"
             )
 
         if not resp.ok:
             body = await resp.text()
-            raise GeminiUsageApiError(f"Account identity request failed ({resp.status}): {body}")
+            raise GoogleAntigravityUsageApiError(f"Account identity request failed ({resp.status}): {body}")
 
         try:
             data = await resp.json()
         except ValueError as err:
-            raise GeminiUsageApiError("Invalid account identity response") from err
+            raise GoogleAntigravityUsageApiError("Invalid account identity response") from err
 
         account_id = data.get("sub") or data.get("id")
         if not account_id:
-            raise GeminiUsageApiError("Google account identity response missing subject")
+            raise GoogleAntigravityUsageApiError("Google account identity response missing subject")
         return {
             "account_id": str(account_id),
             "account_name": data.get("name") or data.get("email"),
@@ -313,17 +313,17 @@ class GeminiUsageApiClient:
                 tier_name = tier_info.get("name", tier_name)
                 tier_id = tier_info.get("id")
             project_id = tier_data.get("cloudaicompanionProject")
-        except GeminiUsageAuthenticationError:
+        except GoogleAntigravityUsageAuthenticationError:
             raise
-        except GeminiUsageApiError as err:
+        except GoogleAntigravityUsageApiError as err:
             _LOGGER.debug("Could not fetch tier info: %s", err)
 
         try:
             user_info = await self.async_post_json(USER_INFO_URL)
             region_code = user_info.get("regionCode")
-        except GeminiUsageAuthenticationError:
+        except GoogleAntigravityUsageAuthenticationError:
             raise
-        except GeminiUsageApiError as err:
+        except GoogleAntigravityUsageApiError as err:
             _LOGGER.debug("Could not fetch user info: %s", err)
 
         return self._parse_payload(

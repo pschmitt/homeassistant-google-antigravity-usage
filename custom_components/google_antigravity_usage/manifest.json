@@ -1,0 +1,20 @@
+{
+  "domain": "google_antigravity_usage",
+  "name": "Google Antigravity Usage",
+  "codeowners": [
+    "@pschmitt"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/pschmitt/homeassistant-google-antigravity-usage",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/pschmitt/homeassistant-google-antigravity-usage/issues",
+  "loggers": [
+    "custom_components.google_antigravity_usage"
+  ],
+  "dependencies": [
+    "application_credentials"
+  ],
+  "requirements": [],
+  "version": "0.3.0"
+}

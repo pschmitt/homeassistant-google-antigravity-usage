@@ -7,9 +7,10 @@ from datetime import timedelta
 DOMAIN = "google_antigravity_usage"
 
 # Endpoints
-# Antigravity uses the daily quota backend. The non-daily endpoint can return
-# a different quota snapshot for the same account.
-CLOUD_CODE_API_BASE = "https://daily-cloudcode-pa.googleapis.com/v1internal"
+# Production Cloud Code endpoint returns both first-party Gemini and 3P models.
+# Daily/staging endpoint is retained as a fallback.
+CLOUD_CODE_API_BASE = "https://cloudcode-pa.googleapis.com/v1internal"
+CLOUD_CODE_FALLBACK_API_BASE = "https://daily-cloudcode-pa.googleapis.com/v1internal"
 QUOTA_API_URL = f"{CLOUD_CODE_API_BASE}:retrieveUserQuotaSummary"
 CODE_ASSIST_URL = f"{CLOUD_CODE_API_BASE}:loadCodeAssist"
 USER_INFO_URL = f"{CLOUD_CODE_API_BASE}:fetchUserInfo"

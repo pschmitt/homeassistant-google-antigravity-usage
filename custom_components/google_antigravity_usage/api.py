@@ -29,6 +29,7 @@ import asyncio
 from collections.abc import Callable
 
 from .const import (
+    CLOUD_CODE_FALLBACK_API_BASE,
     CODE_ASSIST_URL,
     GOOGLE_USERINFO_URL,
     OAUTH2_TOKEN_URL,
@@ -300,6 +301,51 @@ class GoogleAntigravityUsageApiClient:
     async def async_fetch_usage(self) -> dict[str, Any]:
         """Fetch all usage and quota data."""
         quota_data = await self.async_post_json(QUOTA_API_URL)
+
+        # Ensure both Gemini and 3P quota groups are fetched if available.
+        # If one endpoint only returns a subset of quota groups, merge with the fallback.
+        groups = quota_data.get("groups")
+        if isinstance(groups, list):
+            has_gemini = any(
+                "gemini" in str(b.get("bucketId", ""))
+                for g in groups
+                if isinstance(g, dict)
+                for b in (g.get("buckets") or [])
+                if isinstance(b, dict)
+            )
+            has_3p = any(
+                "3p" in str(b.get("bucketId", ""))
+                for g in groups
+                if isinstance(g, dict)
+                for b in (g.get("buckets") or [])
+                if isinstance(b, dict)
+            )
+            if not (has_gemini and has_3p):
+                fallback_url = f"{CLOUD_CODE_FALLBACK_API_BASE}:retrieveUserQuotaSummary"
+                try:
+                    fallback_data = await self.async_post_json(fallback_url)
+                    fallback_groups = fallback_data.get("groups") or []
+                    existing_bucket_ids = {
+                        b.get("bucketId")
+                        for g in groups
+                        if isinstance(g, dict)
+                        for b in (g.get("buckets") or [])
+                        if isinstance(b, dict) and b.get("bucketId")
+                    }
+                    for fg in fallback_groups:
+                        if not isinstance(fg, dict):
+                            continue
+                        new_buckets = [
+                            b
+                            for b in (fg.get("buckets") or [])
+                            if isinstance(b, dict) and b.get("bucketId") not in existing_bucket_ids
+                        ]
+                        if new_buckets:
+                            fg_copy = dict(fg)
+                            fg_copy["buckets"] = new_buckets
+                            groups.append(fg_copy)
+                except Exception as err:  # noqa: BLE001
+                    _LOGGER.debug("Could not fetch fallback quota summary: %s", err)
 
         tier_name = "Antigravity"
         tier_id = None

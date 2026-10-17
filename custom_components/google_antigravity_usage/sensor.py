@@ -36,7 +36,9 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Google Antigravity Usage sensors from a config entry."""
-    coordinator: GoogleAntigravityUsageCoordinator = hass.data[DOMAIN][config_entry.entry_id]["coordinator"]
+    coordinator: GoogleAntigravityUsageCoordinator = hass.data[DOMAIN][config_entry.entry_id][
+        "coordinator"
+    ]
     known_entities: set[str] = set()
 
     @callback
@@ -93,7 +95,9 @@ def _build_descriptions(
     elif "3p" in bucket_key:
         prefix = "3P Models"
 
-    window_label = "Session" if window == "5h" else "Weekly" if window == "weekly" else window.title()
+    window_label = (
+        "Session" if window == "5h" else "Weekly" if window == "weekly" else window.title()
+    )
 
     descriptions = [
         AntigravityBucketSensorDescription(

@@ -55,7 +55,10 @@ from .const import (
     OAUTH_REDIRECT_URI,
     OAUTH_SCOPES,
 )
-from .exceptions import GoogleAntigravityUsageApiError, GoogleAntigravityUsageAuthenticationError
+from .exceptions import (
+    GoogleAntigravityUsageApiError,
+    GoogleAntigravityUsageAuthenticationError,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -145,9 +148,7 @@ class GoogleAntigravityUsageConfigFlow(ConfigFlow, domain=DOMAIN):
             else None
         )
         implementation = (
-            implementations.get(implementation_domain)
-            if implementation_domain
-            else None
+            implementations.get(implementation_domain) if implementation_domain else None
         )
         if implementation is None and len(implementations) == 1:
             implementation = next(iter(implementations.values()))
@@ -165,17 +166,21 @@ class GoogleAntigravityUsageConfigFlow(ConfigFlow, domain=DOMAIN):
             return
         self._pkce_verifier, challenge = _generate_pkce()
         self._state = secrets.token_urlsafe(32)
-        self._oauth_url = f"{OAUTH_AUTHORIZE_URL}?{urlencode({
-            'client_id': self._client_id,
-            'response_type': 'code',
-            'redirect_uri': OAUTH_REDIRECT_URI,
-            'scope': OAUTH_SCOPES,
-            'code_challenge': challenge,
-            'code_challenge_method': 'S256',
-            'state': self._state,
-            'access_type': 'offline',
-            'prompt': 'consent',
-        })}"
+        self._oauth_url = f"{OAUTH_AUTHORIZE_URL}?{
+            urlencode(
+                {
+                    'client_id': self._client_id,
+                    'response_type': 'code',
+                    'redirect_uri': OAUTH_REDIRECT_URI,
+                    'scope': OAUTH_SCOPES,
+                    'code_challenge': challenge,
+                    'code_challenge_method': 'S256',
+                    'state': self._state,
+                    'access_type': 'offline',
+                    'prompt': 'consent',
+                }
+            )
+        }"
 
     @staticmethod
     def _parse_auth_input(auth_input: str) -> tuple[str, str | None]:
@@ -234,9 +239,7 @@ class GoogleAntigravityUsageConfigFlow(ConfigFlow, domain=DOMAIN):
         if not access_token:
             return self.async_abort(reason="oauth_failed")
 
-        info = await _validate_input(
-            self.hass, str(access_token), token_data.get("refresh_token")
-        )
+        info = await _validate_input(self.hass, str(access_token), token_data.get("refresh_token"))
         expires_in = token_data.get("expires_in")
         data = {
             CONF_TOKEN: info["access_token"],
@@ -254,8 +257,7 @@ class GoogleAntigravityUsageConfigFlow(ConfigFlow, domain=DOMAIN):
 
         if existing_entry is not None:
             if any(
-                other.entry_id != existing_entry.entry_id
-                and other.unique_id == info["unique_id"]
+                other.entry_id != existing_entry.entry_id and other.unique_id == info["unique_id"]
                 for other in self._async_current_entries()
             ):
                 return self.async_abort(reason="already_configured")
@@ -331,9 +333,7 @@ class GoogleAntigravityUsageConfigFlow(ConfigFlow, domain=DOMAIN):
             errors=errors,
         )
 
-    async def async_step_user(
-        self, user_input: dict[str, Any] | None = None
-    ) -> ConfigFlowResult:
+    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Handle initial setup."""
         return await self._async_step_auth("user", user_input)
 
@@ -357,16 +357,12 @@ class GoogleAntigravityUsageConfigFlow(ConfigFlow, domain=DOMAIN):
 class GoogleAntigravityUsageOptionsFlow(OptionsFlow):
     """Handle options for Google Antigravity Usage."""
 
-    async def async_step_init(
-        self, user_input: dict[str, Any] | None = None
-    ) -> ConfigFlowResult:
+    async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Manage integration options."""
         if user_input is not None:
             return self.async_create_entry(title="", data=user_input)
 
-        current_interval = self.config_entry.options.get(
-            CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
-        )
+        current_interval = self.config_entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
 
         return self.async_show_form(
             step_id="init",

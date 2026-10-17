@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+
 import cairosvg
 
 # The official Antigravity mark, extracted from Wikipedia's
@@ -52,16 +53,56 @@ def build() -> None:
     cc_dir = root / "custom_components" / "google_antigravity_usage"
 
     # Render Icon 512x512 (@2x) and 256x256
-    cairosvg.svg2png(bytestring=ICON_SVG.encode(), write_to=str(brand_dir / "icon@2x.png"), output_width=512, output_height=512)
-    cairosvg.svg2png(bytestring=ICON_SVG.encode(), write_to=str(brand_dir / "icon.png"), output_width=256, output_height=256)
-    cairosvg.svg2png(bytestring=ICON_SVG.encode(), write_to=str(cc_dir / "icon.png"), output_width=256, output_height=256)
-    cairosvg.svg2png(bytestring=ICON_SVG.encode(), write_to=str(root_brand_dir / "icon.png"), output_width=256, output_height=256)
+    cairosvg.svg2png(
+        bytestring=ICON_SVG.encode(),
+        write_to=str(brand_dir / "icon@2x.png"),
+        output_width=512,
+        output_height=512,
+    )
+    cairosvg.svg2png(
+        bytestring=ICON_SVG.encode(),
+        write_to=str(brand_dir / "icon.png"),
+        output_width=256,
+        output_height=256,
+    )
+    cairosvg.svg2png(
+        bytestring=ICON_SVG.encode(),
+        write_to=str(cc_dir / "icon.png"),
+        output_width=256,
+        output_height=256,
+    )
+    cairosvg.svg2png(
+        bytestring=ICON_SVG.encode(),
+        write_to=str(root_brand_dir / "icon.png"),
+        output_width=256,
+        output_height=256,
+    )
 
     # Render Logo 512x256 and 1024x512 (@2x)
-    cairosvg.svg2png(bytestring=LOGO_SVG.encode(), write_to=str(brand_dir / "logo@2x.png"), output_width=1024, output_height=512)
-    cairosvg.svg2png(bytestring=LOGO_SVG.encode(), write_to=str(brand_dir / "logo.png"), output_width=512, output_height=256)
-    cairosvg.svg2png(bytestring=LOGO_SVG.encode(), write_to=str(cc_dir / "logo.png"), output_width=512, output_height=256)
-    cairosvg.svg2png(bytestring=LOGO_SVG.encode(), write_to=str(root_brand_dir / "logo.png"), output_width=512, output_height=256)
+    cairosvg.svg2png(
+        bytestring=LOGO_SVG.encode(),
+        write_to=str(brand_dir / "logo@2x.png"),
+        output_width=1024,
+        output_height=512,
+    )
+    cairosvg.svg2png(
+        bytestring=LOGO_SVG.encode(),
+        write_to=str(brand_dir / "logo.png"),
+        output_width=512,
+        output_height=256,
+    )
+    cairosvg.svg2png(
+        bytestring=LOGO_SVG.encode(),
+        write_to=str(cc_dir / "logo.png"),
+        output_width=512,
+        output_height=256,
+    )
+    cairosvg.svg2png(
+        bytestring=LOGO_SVG.encode(),
+        write_to=str(root_brand_dir / "logo.png"),
+        output_width=512,
+        output_height=256,
+    )
 
     print("Brand assets successfully generated.")
 

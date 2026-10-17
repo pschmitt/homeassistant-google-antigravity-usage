@@ -14,6 +14,7 @@ try:
     from homeassistant.util import slugify
 except ImportError:
     import re
+
     class dt_util:  # type: ignore[no-redef]
         @staticmethod
         def parse_datetime(val: str) -> datetime | None:
@@ -21,9 +22,11 @@ except ImportError:
                 return datetime.fromisoformat(val.replace("Z", "+00:00"))
             except (TypeError, ValueError):
                 return None
+
     def slugify(value: str, separator: str = "_") -> str:  # type: ignore[no-redef]
         value = re.sub(r"[^\w\s-]", "", value.lower()).strip()
         return re.sub(r"[-\s]+", separator, value)
+
 
 import asyncio
 from collections.abc import Callable
@@ -38,7 +41,10 @@ from .const import (
     WINDOW_5H_SECONDS,
     WINDOW_WEEKLY_SECONDS,
 )
-from .exceptions import GoogleAntigravityUsageApiError, GoogleAntigravityUsageAuthenticationError
+from .exceptions import (
+    GoogleAntigravityUsageApiError,
+    GoogleAntigravityUsageAuthenticationError,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -51,9 +57,7 @@ def extract_tokens(raw_token: str) -> tuple[str, str | None]:
             data = json.loads(raw)
             if "token" in data and isinstance(data["token"], dict):
                 access_token = str(
-                    data["token"].get("access_token")
-                    or data["token"].get("accessToken")
-                    or ""
+                    data["token"].get("access_token") or data["token"].get("accessToken") or ""
                 )
                 refresh_token = data["token"].get("refresh_token")
                 return access_token or raw, str(refresh_token) if refresh_token else None
@@ -168,9 +172,7 @@ class GoogleAntigravityUsageApiClient:
             res_json = await resp.json()
             new_access_token = res_json.get("access_token")
             if not new_access_token:
-                _LOGGER.error(
-                    "No access_token returned in token refresh response: %s", res_json
-                )
+                _LOGGER.error("No access_token returned in token refresh response: %s", res_json)
                 return False
 
             new_refresh_token = res_json.get("refresh_token")
@@ -199,9 +201,7 @@ class GoogleAntigravityUsageApiClient:
             _LOGGER.error("Exception occurred while refreshing Google OAuth token: %s", err)
             return False
 
-    async def async_post_json(
-        self, url: str, retry_on_auth_fail: bool = True
-    ) -> dict[str, Any]:
+    async def async_post_json(self, url: str, retry_on_auth_fail: bool = True) -> dict[str, Any]:
         """Perform an authorized POST request with auto-refresh on 401."""
         token = self.bearer_token
         headers = {
@@ -252,16 +252,13 @@ class GoogleAntigravityUsageApiClient:
         except GoogleAntigravityUsageApiError:
             pass
 
-
         return {
             "title": f"Google Antigravity ({tier_name})",
             "tier": tier_name,
             "quota_summary": quota_data,
         }
 
-    async def async_fetch_account_info(
-        self, retry_on_auth_fail: bool = True
-    ) -> dict[str, Any]:
+    async def async_fetch_account_info(self, retry_on_auth_fail: bool = True) -> dict[str, Any]:
         """Fetch the Google account identity associated with the token."""
         headers = {"Authorization": f"Bearer {self.bearer_token}"}
         try:
@@ -282,7 +279,9 @@ class GoogleAntigravityUsageApiClient:
 
         if not resp.ok:
             body = await resp.text()
-            raise GoogleAntigravityUsageApiError(f"Account identity request failed ({resp.status}): {body}")
+            raise GoogleAntigravityUsageApiError(
+                f"Account identity request failed ({resp.status}): {body}"
+            )
 
         try:
             data = await resp.json()

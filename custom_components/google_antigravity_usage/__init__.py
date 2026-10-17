@@ -11,9 +11,10 @@ from typing import Any
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers import aiohttp_client
-from homeassistant.helpers import config_entry_oauth2_flow
-from homeassistant.helpers.config_entry_oauth2_flow import ImplementationUnavailableError
+from homeassistant.helpers import aiohttp_client, config_entry_oauth2_flow
+from homeassistant.helpers.config_entry_oauth2_flow import (
+    ImplementationUnavailableError,
+)
 
 from .api import GoogleAntigravityUsageApiClient
 from .const import (
@@ -78,17 +79,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     token = entry.data[CONF_TOKEN]
 
     try:
-        implementations = await config_entry_oauth2_flow.async_get_implementations(
-            hass, DOMAIN
-        )
+        implementations = await config_entry_oauth2_flow.async_get_implementations(hass, DOMAIN)
     except ImplementationUnavailableError:
         implementations = {}
     implementation_domain = entry.data.get(CONF_AUTH_IMPLEMENTATION)
-    implementation = (
-        implementations.get(implementation_domain)
-        if implementation_domain
-        else None
-    )
+    implementation = implementations.get(implementation_domain) if implementation_domain else None
     if implementation is None and len(implementations) == 1:
         implementation = next(iter(implementations.values()))
         hass.config_entries.async_update_entry(
@@ -161,6 +156,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Handle options update."""
-    coordinator: GoogleAntigravityUsageCoordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
+    coordinator: GoogleAntigravityUsageCoordinator = hass.data[DOMAIN][entry.entry_id][
+        "coordinator"
+    ]
     interval = entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
     coordinator.update_interval = timedelta(seconds=interval)

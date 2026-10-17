@@ -18,7 +18,10 @@ from .const import (
     RESET_TIME_JITTER_CONFIRMATIONS,
     RESET_TIME_JITTER_TOLERANCE,
 )
-from .exceptions import GoogleAntigravityUsageApiError, GoogleAntigravityUsageAuthenticationError
+from .exceptions import (
+    GoogleAntigravityUsageApiError,
+    GoogleAntigravityUsageAuthenticationError,
+)
 
 _LOGGER = logging.getLogger(__name__)
 

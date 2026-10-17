@@ -7,13 +7,14 @@ from datetime import timedelta
 DOMAIN = "google_antigravity_usage"
 
 # Endpoints
-# Production Cloud Code endpoint returns both first-party Gemini and 3P models.
-# Daily/staging endpoint is retained as a fallback.
-CLOUD_CODE_API_BASE = "https://cloudcode-pa.googleapis.com/v1internal"
-CLOUD_CODE_FALLBACK_API_BASE = "https://daily-cloudcode-pa.googleapis.com/v1internal"
+# Antigravity uses the daily Cloud Code endpoint with antigravity client identity.
+CLOUD_CODE_API_BASE = "https://daily-cloudcode-pa.googleapis.com/v1internal"
+CLOUD_CODE_FALLBACK_API_BASE = "https://cloudcode-pa.googleapis.com/v1internal"
 QUOTA_API_URL = f"{CLOUD_CODE_API_BASE}:retrieveUserQuotaSummary"
 CODE_ASSIST_URL = f"{CLOUD_CODE_API_BASE}:loadCodeAssist"
 USER_INFO_URL = f"{CLOUD_CODE_API_BASE}:fetchUserInfo"
+DEFAULT_PROJECT = "aicode-consumers"
+DEFAULT_USER_AGENT = "antigravity/cli/1.3.6 (aidev_client; os_type=linux; arch=amd64; cl=999748552; auth_method=consumer)"
 GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v1/userinfo?alt=json"
 OAUTH2_TOKEN_URL = "https://oauth2.googleapis.com/token"
 OAUTH_AUTHORIZE_URL = "https://accounts.google.com/o/oauth2/v2/auth"

@@ -34,6 +34,8 @@ from collections.abc import Callable
 from .const import (
     CLOUD_CODE_FALLBACK_API_BASE,
     CODE_ASSIST_URL,
+    DEFAULT_PROJECT,
+    DEFAULT_USER_AGENT,
     GOOGLE_USERINFO_URL,
     OAUTH2_TOKEN_URL,
     QUOTA_API_URL,
@@ -201,18 +203,23 @@ class GoogleAntigravityUsageApiClient:
             _LOGGER.error("Exception occurred while refreshing Google OAuth token: %s", err)
             return False
 
-    async def async_post_json(self, url: str, retry_on_auth_fail: bool = True) -> dict[str, Any]:
+    async def async_post_json(
+        self,
+        url: str,
+        json_data: dict[str, Any] | None = None,
+        retry_on_auth_fail: bool = True,
+    ) -> dict[str, Any]:
         """Perform an authorized POST request with auto-refresh on 401."""
         token = self.bearer_token
         headers = {
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
-            "User-Agent": "antigravity-cli/1.0",
+            "User-Agent": DEFAULT_USER_AGENT,
         }
         try:
             resp = await self._session.post(
                 url,
-                json={},
+                json=json_data if json_data is not None else {},
                 headers=headers,
                 timeout=aiohttp.ClientTimeout(total=15),
             )
@@ -224,7 +231,9 @@ class GoogleAntigravityUsageApiClient:
                 _LOGGER.debug("Received %s, attempting OAuth token refresh...", resp.status)
                 refreshed = await self.async_refresh_token()
                 if refreshed:
-                    return await self.async_post_json(url, retry_on_auth_fail=False)
+                    return await self.async_post_json(
+                        url, json_data=json_data, retry_on_auth_fail=False
+                    )
             raise GoogleAntigravityUsageAuthenticationError(
                 f"Authentication failed ({resp.status}): Invalid or expired token"
             )
@@ -240,10 +249,14 @@ class GoogleAntigravityUsageApiClient:
 
     async def async_validate(self) -> dict[str, Any]:
         """Validate credentials and return basic profile info."""
-        quota_data = await self.async_post_json(QUOTA_API_URL)
+        quota_data = await self.async_post_json(
+            QUOTA_API_URL, json_data={"project": DEFAULT_PROJECT}
+        )
         tier_name = "Antigravity"
         try:
-            tier_data = await self.async_post_json(CODE_ASSIST_URL)
+            tier_data = await self.async_post_json(
+                CODE_ASSIST_URL, json_data={"metadata": {"ideType": "ANTIGRAVITY"}}
+            )
             tier_info = tier_data.get("currentTier", {})
             if isinstance(tier_info, dict) and tier_info.get("name"):
                 tier_name = tier_info["name"]
@@ -299,7 +312,9 @@ class GoogleAntigravityUsageApiClient:
 
     async def async_fetch_usage(self) -> dict[str, Any]:
         """Fetch all usage and quota data."""
-        quota_data = await self.async_post_json(QUOTA_API_URL)
+        quota_data = await self.async_post_json(
+            QUOTA_API_URL, json_data={"project": DEFAULT_PROJECT}
+        )
 
         # Ensure both Gemini and 3P quota groups are fetched if available.
         # If one endpoint only returns a subset of quota groups, merge with the fallback.
@@ -322,7 +337,9 @@ class GoogleAntigravityUsageApiClient:
             if not (has_gemini and has_3p):
                 fallback_url = f"{CLOUD_CODE_FALLBACK_API_BASE}:retrieveUserQuotaSummary"
                 try:
-                    fallback_data = await self.async_post_json(fallback_url)
+                    fallback_data = await self.async_post_json(
+                        fallback_url, json_data={"project": DEFAULT_PROJECT}
+                    )
                     fallback_groups = fallback_data.get("groups") or []
                     existing_bucket_ids = {
                         b.get("bucketId")
@@ -352,7 +369,9 @@ class GoogleAntigravityUsageApiClient:
         region_code = None
 
         try:
-            tier_data = await self.async_post_json(CODE_ASSIST_URL)
+            tier_data = await self.async_post_json(
+                CODE_ASSIST_URL, json_data={"metadata": {"ideType": "ANTIGRAVITY"}}
+            )
             tier_info = tier_data.get("currentTier", {})
             if isinstance(tier_info, dict):
                 tier_name = tier_info.get("name", tier_name)
@@ -364,7 +383,9 @@ class GoogleAntigravityUsageApiClient:
             _LOGGER.debug("Could not fetch tier info: %s", err)
 
         try:
-            user_info = await self.async_post_json(USER_INFO_URL)
+            user_info = await self.async_post_json(
+                USER_INFO_URL, json_data={"project": project_id or DEFAULT_PROJECT}
+            )
             region_code = user_info.get("regionCode")
         except GoogleAntigravityUsageAuthenticationError:
             raise

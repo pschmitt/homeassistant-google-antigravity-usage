@@ -50,7 +50,7 @@ async def async_setup_entry(
             known_entities.add(tier_unique_id)
             new_entities.append(AntigravityTierSensor(coordinator, tier_unique_id))
 
-        buckets = coordinator.data.get("buckets")
+        buckets = (coordinator.data or {}).get("buckets")
         if isinstance(buckets, dict):
             for bucket_key, bucket_data in buckets.items():
                 for desc in _build_descriptions(bucket_key, bucket_data):
@@ -157,15 +157,15 @@ class AntigravityTierSensor(GoogleAntigravityUsageEntity, SensorEntity):
     @property
     def native_value(self) -> str:
         """Return the subscription tier."""
-        return str(self.coordinator.data.get("tier", "Antigravity"))
+        return str((self.coordinator.data or {}).get("tier", "Antigravity"))
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return attributes."""
         return {
-            "tier_id": self.coordinator.data.get("tier_id"),
-            "project_id": self.coordinator.data.get("project_id"),
-            "region": self.coordinator.data.get("region"),
+            "tier_id": (self.coordinator.data or {}).get("tier_id"),
+            "project_id": (self.coordinator.data or {}).get("project_id"),
+            "region": (self.coordinator.data or {}).get("region"),
         }
 
 
@@ -188,7 +188,7 @@ class AntigravityBucketMetricSensor(GoogleAntigravityUsageEntity, SensorEntity):
     @property
     def _bucket(self) -> dict[str, Any] | None:
         """Get bucket data."""
-        buckets = self.coordinator.data.get("buckets", {})
+        buckets = (self.coordinator.data or {}).get("buckets", {})
         if isinstance(buckets, dict):
             return buckets.get(self.entity_description.bucket_key)
         return None
@@ -244,7 +244,7 @@ class AntigravityResetTimestampSensor(GoogleAntigravityUsageEntity, SensorEntity
     @property
     def _bucket(self) -> dict[str, Any] | None:
         """Get bucket data."""
-        buckets = self.coordinator.data.get("buckets", {})
+        buckets = (self.coordinator.data or {}).get("buckets", {})
         if isinstance(buckets, dict):
             return buckets.get(self.entity_description.bucket_key)
         return None

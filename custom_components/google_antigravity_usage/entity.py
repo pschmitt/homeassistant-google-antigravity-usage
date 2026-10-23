@@ -18,7 +18,7 @@ class GoogleAntigravityUsageEntity(CoordinatorEntity[GoogleAntigravityUsageCoord
         """Initialize the base entity."""
         super().__init__(coordinator)
         entry = coordinator.config_entry
-        tier = coordinator.data.get("tier", "Antigravity")
+        tier = (coordinator.data or {}).get("tier", "Antigravity")
         account_name = entry.data.get(CONF_ACCOUNT_NAME)
         account_email = entry.data.get(CONF_ACCOUNT_EMAIL)
         device_name_parts = ["Google Antigravity"]

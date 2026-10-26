@@ -48,6 +48,7 @@ MAX_SCAN_INTERVAL = 3600
 # Known Bucket Identifiers
 BUCKET_GEMINI_5H = "gemini-5h"
 BUCKET_GEMINI_WEEKLY = "gemini-weekly"
+BUCKET_GEMINI_ARGON_WEEKLY = "gemini-argon-wtu-weekly"
 BUCKET_3P_5H = "3p-5h"
 BUCKET_3P_WEEKLY = "3p-weekly"
 

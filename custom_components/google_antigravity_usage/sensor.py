@@ -90,7 +90,9 @@ def _build_descriptions(
     window = bucket_data.get("window", "")
 
     prefix = group_name if group_name else "Antigravity"
-    if "gemini" in bucket_key:
+    if "argon" in bucket_key or "argon" in group_name.lower():
+        prefix = "Gemini 4 Argon"
+    elif "gemini" in bucket_key:
         prefix = "Gemini"
     elif "3p" in bucket_key:
         prefix = "3P Models"

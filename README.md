@@ -1,58 +1,45 @@
-# Google Antigravity Usage - Home Assistant Integration
+<p align="center">
+  <img src="custom_components/google_antigravity_usage/brand/icon.png" width="96" alt="Google Antigravity Usage icon">
+</p>
 
-A custom Home Assistant integration that monitors your Google Antigravity subscription quotas and rate limits.
+<p align="center">
+  <a href="https://my.home-assistant.io/redirect/marketplace_repository/?owner=pschmitt&amp;repository=homeassistant-google-antigravity-usage&amp;category=integration"><img src="https://my.home-assistant.io/badges/marketplace_repository.svg" alt="Open this integration in Home Assistant Marketplace"></a>
+</p>
 
-## Sensors
+<h1 align="center">Google Antigravity Usage</h1>
 
-- **Gemini Session Usage** - Current 5-hour session utilization for first-party Gemini models (%)
-- **Gemini Session Remaining** - Remaining 5-hour quota (%)
-- **Gemini Session Reset Time** - When the 5-hour session limit resets
-- **Gemini Weekly Usage** - Current 7-day utilization (%)
-- **Gemini Weekly Remaining** - Remaining 7-day quota (%)
-- **Gemini Weekly Usage Pace** - Utilization vs time-elapsed pace (%)
-- **Gemini Weekly Reset Time** - When the weekly limit resets
-- **3P Models Session / Weekly Usage** - Utilization for Claude & GPT models available under your plan
-- **Plan Tier** - Subscription tier (e.g. *Antigravity*, *AI Pro*, *AI Ultra*)
+<p align="center">Monitor subscription quotas and reset times in Home Assistant.</p>
 
-## Installation
+## Features
 
-[![Open this integration in Home Assistant Marketplace](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=pschmitt&repository=homeassistant-google-antigravity-usage&category=integration)
+- **Gemini quotas:** Show five-hour and seven-day usage, remaining capacity and reset times.
+- **Usage pace:** Compare weekly utilization with elapsed time.
+- **Other models:** Report session and weekly usage for third-party models available under the plan.
+- **Account identity:** Display the subscription tier and support multiple Google accounts.
 
-For Home Assistant 2026.11 and later, use the Marketplace badge to add this
-repository as a custom repository and install the integration.
+## Install
 
-### Older installations: HACS custom repository
-1. Add `https://github.com/pschmitt/homeassistant-google-antigravity-usage`
-   to HACS as a custom repository (Integration).
-2. Install **Google Antigravity Usage**.
-3. Restart Home Assistant.
-4. Go to **Settings > Devices & Services > Add Integration > Google Antigravity Usage**.
+Use the Marketplace badge above on Home Assistant 2026.11 or later to add this
+repository as a custom integration. On older versions, add it as a HACS
+custom repository of type **Integration**. Install and restart Home Assistant.
+The badge does not imply a public catalog listing.
 
-### Manual
-1. Copy `custom_components/google_antigravity_usage/` into `/config/custom_components/google_antigravity_usage/`.
-2. Restart Home Assistant.
-3. Add the integration via the UI.
+## Quick start
 
-## Setup
+1. Create a **Google Antigravity Usage** application credential under
+   **Settings → Devices & services → Application credentials** using an OAuth
+   client ID and secret from your Google Cloud project.
+2. Add **Google Antigravity Usage** under **Settings → Devices & services → Add
+   integration** and sign in through Google's authorization flow.
+3. If Google redirects to a localhost address, paste the complete redirected
+   URL or authorization code into Home Assistant.
+4. Inspect the usage, remaining-quota and reset-time sensors.
 
-Before adding the integration, create a **Google Antigravity Usage** application
-credential under **Settings > Devices & services > Application credentials**.
-Enter the OAuth client ID and secret from your Google Cloud project there.
-Home Assistant stores these credentials in its protected application-credential
-store; they are not part of this integration repository.
-
-The setup flow then opens the Google authorization URL used by Antigravity. After
-signing in, Google redirects to a localhost URL; paste the complete redirected
-URL (or its authorization code) back into Home Assistant. The flow uses PKCE
-and requests offline access so the integration can refresh access tokens.
-
-Existing installations can still use the JSON content from
-`~/.gemini/antigravity-cli/antigravity-oauth-token` as a legacy fallback.
-
-Multiple Google accounts are supported when the OAuth token exposes the Google
-account identity. Entries are deduplicated by Google's stable account subject,
-not by the subscription tier.
+The flow uses PKCE and offline access to refresh tokens. Existing installations
+can use the JSON content of `~/.gemini/antigravity-cli/antigravity-oauth-token`
+as a legacy fallback. Home Assistant stores application credentials separately
+from this repository.
 
 ## License
 
-GNU General Public License v3.0 (GPL-3.0)
+[GPL-3.0](LICENSE).

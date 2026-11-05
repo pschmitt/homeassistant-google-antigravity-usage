@@ -16,8 +16,14 @@ A custom Home Assistant integration that monitors your Google Antigravity subscr
 
 ## Installation
 
-### HACS
-1. Add this repository to HACS as a custom repository (Integration).
+[![Open this integration in Home Assistant Marketplace](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=pschmitt&repository=homeassistant-google-antigravity-usage&category=integration)
+
+For Home Assistant 2026.11 and later, use the Marketplace badge to add this
+repository as a custom repository and install the integration.
+
+### Older installations: HACS custom repository
+1. Add `https://github.com/pschmitt/homeassistant-google-antigravity-usage`
+   to HACS as a custom repository (Integration).
 2. Install **Google Antigravity Usage**.
 3. Restart Home Assistant.
 4. Go to **Settings > Devices & Services > Add Integration > Google Antigravity Usage**.
